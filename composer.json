@@ -1,5 +1,5 @@
 {
-	"name": "trias/math-parser",
+	"name": "perbility/math-parser",
 	"description": "A simple shunting-yard based math parser and executor for PHP",
 	"version": "1.0.0",
 	"keywords": ["math", "eval"],
