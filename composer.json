@@ -1,23 +1,26 @@
 {
-	"name": "ircmaxell/php-math-parser",
+	"name": "trias/math-parser",
 	"description": "A simple shunting-yard based math parser and executor for PHP",
-	"version": "0.0.1",
+	"version": "1.0.0",
 	"keywords": ["math", "eval"],
-	"homepage": "https://github.com/ircmaxell/php-math-parser",
+	"homepage": "https://github.com/trias/math-parser",
 	"license": "MIT",
 	"authors": [
 		{
 			"name": "Anthony Ferrara",
 			"email": "ircmaxell@php.net",
 			"homepage": "http://blog.ircmaxell.com"
+		},
+		{
+			"name": "Stefan Ackermann"
 		}
 	],
 	"require-dev": {
-		"friendsofphp/php-cs-fixer": "^1.11"
+		"phpunit/phpunit": "^8"
 	},
 	"autoload": {
 		"psr-4": {
-			"PHPMathParser\\": "lib/PHPMathParser/"
+			"MathParser\\": "lib/MathParser/"
 		}
 	}
 }

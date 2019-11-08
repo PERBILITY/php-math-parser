@@ -1,19 +1,11 @@
 <?php
 
-/*
- * The PHP Math Parser library
- *
- * @author     Anthony Ferrara <ircmaxell@ircmaxell.com>
- * @copyright  2011 The Authors
- * @license    http://www.opensource.org/licenses/mit-license.html  MIT License
- * @version    Build @@version@@
- */
-namespace PHPMathParser\Expressions;
+namespace MathParser\Expressions;
 
-use PHPMathParser\Stack;
-use PHPMathParser\TerminalExpression;
+use MathParser\Stack;
+use MathParser\Expression;
 
-class Parenthesis extends TerminalExpression
+class Parenthesis extends Expression
 {
     protected $precedence = 6;
 

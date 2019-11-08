@@ -1,25 +1,18 @@
 <?php
 
-/*
- * The PHP Math Parser library
- *
- * @author     Anthony Ferrara <ircmaxell@ircmaxell.com>
- * @copyright  2011 The Authors
- * @license    http://www.opensource.org/licenses/mit-license.html  MIT License
- * @version    Build @@version@@
- */
-namespace PHPMathParser;
+namespace MathParser;
 
-use PHPMathParser\Expressions\Addition;
-use PHPMathParser\Expressions\Division;
-use PHPMathParser\Expressions\Multiplication;
-use PHPMathParser\Expressions\Number;
-use PHPMathParser\Expressions\Parenthesis;
-use PHPMathParser\Expressions\Power;
-use PHPMathParser\Expressions\Subtraction;
-use PHPMathParser\Expressions\Unary;
+use MathParser\Expressions\Addition;
+use MathParser\Expressions\Division;
+use MathParser\Expressions\Modulo;
+use MathParser\Expressions\Multiplication;
+use MathParser\Expressions\Number;
+use MathParser\Expressions\Parenthesis;
+use MathParser\Expressions\Power;
+use MathParser\Expressions\Subtraction;
+use MathParser\Expressions\Unary;
 
-abstract class TerminalExpression
+abstract class Expression
 {
     protected $value = '';
 
@@ -33,7 +26,8 @@ abstract class TerminalExpression
         if (is_object($value) && $value instanceof self) {
             return $value;
         } elseif (is_numeric($value)) {
-            return new Number($value);
+            // +0 => to number conversion (int or float)
+            return new Number($value + 0);
         } elseif ($value == 'u') {
             return new Unary($value);
         } elseif ($value == '+') {
@@ -48,8 +42,12 @@ abstract class TerminalExpression
             return new Parenthesis($value);
         } elseif ($value == '^') {
             return new Power($value);
+        }elseif ($value == '%') {
+            return new Modulo($value);
+        }elseif (strlen($value) >= 2 && $value[0] == '$') {
+            return new Variable(substr($value, 1));
         }
-        throw new \Exception('Undefined Value ' . $value);
+        throw new \RuntimeException('Undefined Value ' . $value);
     }
 
     abstract public function operate(Stack $stack);
@@ -70,6 +68,11 @@ abstract class TerminalExpression
     }
 
     public function isNoOp()
+    {
+        return false;
+    }
+    
+    public function isVariable()
     {
         return false;
     }
