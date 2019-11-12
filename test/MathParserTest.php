@@ -83,13 +83,39 @@ class MathParserTest extends TestCase
     /**
      * @return mixed[][]
      */
+    public static function provideInvalidSyntaxType()
+    {
+        $data = [
+            [0, null],
+            [[], null],
+        ];
+        
+        return $data;
+    }
+    
+    /**
+     * @return mixed[][]
+     */
     public static function provideVariableData()
     {
         $data = [
             [['$0', [1]], 1],
+            [['$0', ['1']], 1],
             [['$0 + $0', [1]], 2],
             [['$0 + $1', [1, 41]], 42],
             [['$0 + $2', [0, 41, 13]], 13],
+        ];
+        
+        return $data;
+    }
+    
+    /**
+     * @return mixed[][]
+     */
+    public static function provideInvalidVariableData()
+    {
+        $data = [
+            [['$0', ['test']], null],
         ];
         
         return $data;
@@ -115,6 +141,16 @@ class MathParserTest extends TestCase
     }
     
     /**
+     * @dataProvider provideInvalidSyntaxType
+     */
+    public function testInvalidSyntaxType($input, $expected)
+    {
+        $this->expectException(\RuntimeException::class);
+        $mathParser = new Math();
+        $mathParser->evaluate($input);
+    }
+    
+    /**
      * @dataProvider provideVariableData
      */
     public function testVariables($input, $expected)
@@ -122,5 +158,27 @@ class MathParserTest extends TestCase
         $mathParser = new Math();
         $mathParser->setVariables($input[1]);
         $this->assertSame($expected, $mathParser->evaluate($input[0]));
+    }
+    
+    /**
+     * @dataProvider provideInvalidVariableData
+     */
+    public function testInvalidVariable($input, $expected)
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $mathParser = new Math();
+        $mathParser->setVariables($input[1]);
+        $mathParser->evaluate($input[0]);
+    }
+    
+    /**
+     * @dataProvider provideInvalidVariableData
+     */
+    public function testInvalidVariableWithRegister($input, $expected)
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $mathParser = new Math();
+        $mathParser->registerVariable(0, $input[1][0]);
+        $mathParser->evaluate($input[0]);
     }
 }

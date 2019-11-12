@@ -7,9 +7,9 @@ class Variable extends Expression
 {
     public function render($variables = [])
     {
-        if(isset($variables[$this->value])){
+        if (isset($variables[$this->value])) {
             return $variables[$this->value];
-        }else{
+        } else {
             return null;
         }
     }
