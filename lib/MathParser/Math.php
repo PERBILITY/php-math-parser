@@ -77,7 +77,7 @@ class Math
     
     public function registerVariable($name, $value)
     {
-        $this->assertNumericVariable($value);
+        $this->assertVariableIsNumber($value);
     
         $this->variables[$name] = $value;
     }
@@ -183,7 +183,7 @@ class Math
      */
     public function setVariables(array $variables)
     {
-        $this->assertNumericVariables($variables);
+        $this->assertVariablesAreNumbers($variables);
         $this->variables = $variables;
     }
     
@@ -200,16 +200,16 @@ class Math
         return $substitutedStack;
     }
     
-    private function assertNumericVariables(array $variables)
+    private function assertVariablesAreNumbers(array $variables)
     {
         foreach ($variables as $variable) {
-            $this->assertNumericVariable($variable);
+            $this->assertVariableIsNumber($variable);
         }
     }
     
-    private function assertNumericVariable($variable)
+    private function assertVariableIsNumber($variable)
     {
-        if (!is_numeric($variable)) {
+        if (!is_int($variable) && !is_float($variable)) {
             throw new \InvalidArgumentException('provided variable is not a number');
         }
     }

@@ -100,7 +100,6 @@ class MathParserTest extends TestCase
     {
         $data = [
             [['$0', [1]], 1],
-            [['$0', ['1']], 1],
             [['$0 + $0', [1]], 2],
             [['$0 + $1', [1, 41]], 42],
             [['$0 + $2', [0, 41, 13]], 13],
@@ -115,6 +114,7 @@ class MathParserTest extends TestCase
     public static function provideInvalidVariableData()
     {
         $data = [
+            [['$0', ['1']], 1],
             [['$0', ['test']], null],
         ];
         
