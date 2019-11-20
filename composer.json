@@ -3,7 +3,7 @@
 	"description": "A simple shunting-yard based math parser and executor for PHP",
 	"version": "1.0.2",
 	"keywords": ["math", "eval"],
-	"homepage": "https://github.com/trias/math-parser",
+	"homepage": "https://github.com/PERBILITY/php-math-parser",
 	"license": "MIT",
 	"authors": [
 		{
