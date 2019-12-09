@@ -24,7 +24,6 @@ class MathParserTest extends TestCase
             ['1-1/6', 5 / 6],
             ['(1-7)/6', -1],
             ['-0 + 0', 0],
-            // should fail..? https://floating-point-gui.de/
             ['8 - 6.4', 1.6],
             ['1 / 2', 0.5],
             ['10 * 10', 100],

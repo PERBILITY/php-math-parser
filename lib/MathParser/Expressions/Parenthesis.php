@@ -2,7 +2,6 @@
 
 namespace MathParser\Expressions;
 
-use MathParser\Stack;
 use MathParser\Expression;
 
 class Parenthesis extends Expression

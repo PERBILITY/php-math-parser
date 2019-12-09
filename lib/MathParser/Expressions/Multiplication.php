@@ -2,8 +2,6 @@
 
 namespace MathParser\Expressions;
 
-use MathParser\Stack;
-
 class Multiplication extends Operator
 {
     protected $precedence = 5;
@@ -12,7 +10,7 @@ class Multiplication extends Operator
     {
         $left = array_pop($stack)->operate($stack);
         $right = array_pop($stack)->operate($stack);
-        if($left === null || $right === null){
+        if ($left === null || $right === null) {
             return null;
         }
         return $left * $right;

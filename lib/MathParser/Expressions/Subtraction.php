@@ -2,8 +2,6 @@
 
 namespace MathParser\Expressions;
 
-use MathParser\Stack;
-
 class Subtraction extends Operator
 {
     protected $precedence = 4;
@@ -13,7 +11,7 @@ class Subtraction extends Operator
         $left = array_pop($stack)->operate($stack);
         $right = array_pop($stack)->operate($stack);
     
-        if($left === null || $right === null){
+        if ($left === null || $right === null) {
             return null;
         }
         

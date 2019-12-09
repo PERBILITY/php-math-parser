@@ -14,7 +14,7 @@ class Math
      */
     public function evaluate($string)
     {
-        if(!is_string($string)){
+        if (!is_string($string)) {
             throw new \RuntimeException('not a string provided as formula');
         }
         $stack = $this->parse($string);
@@ -107,7 +107,6 @@ class Math
             return $output;
         }
         return null;
-        
     }
     
     private function parseParenthesis(Expression $expression, array &$output, array &$operators)

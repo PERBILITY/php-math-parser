@@ -42,9 +42,9 @@ abstract class Expression
             return new Parenthesis($value);
         } elseif ($value == '^') {
             return new Power($value);
-        }elseif ($value == '%') {
+        } elseif ($value == '%') {
             return new Modulo($value);
-        }elseif (strlen($value) >= 2 && $value[0] == '$') {
+        } elseif (strlen($value) >= 2 && $value[0] == '$') {
             return new Variable(substr($value, 1));
         }
         throw new \RuntimeException('Undefined Value ' . $value);
