@@ -9,7 +9,7 @@ class Parenthesis extends Expression
 {
     protected $precedence = 6;
 
-    public function operate(Stack $stack)
+    public function operate(array &$stack)
     {
     }
 

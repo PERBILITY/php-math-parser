@@ -8,10 +8,10 @@ class Power extends Operator
 {
     protected $precedence = 6;
 
-    public function operate(Stack $stack)
+    public function operate(array &$stack)
     {
-        $right = $stack->pop()->operate($stack);
-        $left = $stack->pop()->operate($stack);
+        $right = array_pop($stack)->operate($stack);
+        $left = array_pop($stack)->operate($stack);
         
         if($left === null || $right === null){
             return null;

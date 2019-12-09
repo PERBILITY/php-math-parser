@@ -19,7 +19,7 @@ class Variable extends Expression
         return true;
     }
     
-    public function operate(Stack $stack)
+    public function operate(array &$stack)
     {
         throw new RuntimeException('variable not instantiated');
     }

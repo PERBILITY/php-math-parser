@@ -24,13 +24,13 @@ class Math
     
     /**
      * @param $string
-     * @return Stack
+     * @return Expression[] $output
      */
     public function parse($string)
     {
         $tokens = $this->tokenize($string);
-        $output = new Stack();
-        $operators = new Stack();
+        $output = [];
+        $operators = [];
         
         $expectOperator = false;
         
@@ -61,15 +61,15 @@ class Math
                 if ($expectOperator) {
                     throw new \RuntimeException('expected operator but found: ' . get_class($expression));
                 }
-                $output->push($expression);
+                $output[] = $expression;
                 $expectOperator = true;
             }
         }
-        while (($op = $operators->pop())) {
+        while (($op = array_pop($operators))) {
             if ($op->isParenthesis()) {
                 throw new \RuntimeException('Mismatched Parenthesis');
             }
-            $output->push($op);
+            $output[] = $op;
         }
         
         return $output;
@@ -82,24 +82,24 @@ class Math
         $this->variables[$name] = $value;
     }
     
-    public function run(Stack $stack)
+    public function run(array &$stack)
     {
-        $stack = $this->substituteVariables($stack, $this->variables);
+        $this->substituteVariables($stack, $this->variables);
         
-        while (($operator = $stack->pop()) && $operator->isOperator()) {
+        while (($operator = array_pop($stack)) && $operator->isOperator()) {
             $value = $operator->operate($stack);
             if (!is_null($value)) {
-                $stack->push(Expression::factory($value));
+                $stack[] = Expression::factory($value);
             }
         }
         
         return $operator ? $operator->render() : $this->render($stack);
     }
     
-    protected function render(Stack $stack)
+    private function render(array &$stack)
     {
         $output = '';
-        while (($el = $stack->pop())) {
+        while (($el = array_pop($stack))) {
             $output .= $el->render();
         }
         
@@ -110,18 +110,18 @@ class Math
         
     }
     
-    protected function parseParenthesis(Expression $expression, Stack $output, Stack $operators)
+    private function parseParenthesis(Expression $expression, array &$output, array &$operators)
     {
         if ($expression->isOpen()) {
-            $operators->push($expression);
+            $operators[] = $expression;
         } else {
             $clean = false;
-            while (($end = $operators->pop())) {
+            while (($end = array_pop($operators))) {
                 if ($end->isParenthesis()) {
                     $clean = true;
                     break;
                 } else {
-                    $output->push($end);
+                    $output[] = $end;
                 }
             }
             if (!$clean) {
@@ -130,28 +130,28 @@ class Math
         }
     }
     
-    protected function parseOperator(Expression $expression, Stack $output, Stack $operators)
+    private function parseOperator(Expression $expression, array &$output, array &$operators)
     {
-        $end = $operators->poke();
+        $end = end($operators);
         if (!$end) {
-            $operators->push($expression);
+            $operators[] = $expression;
         } elseif ($end->isOperator()) {
             do {
                 if ($expression->isLeftAssoc() && $expression->getPrecedence() <= $end->getPrecedence()) {
-                    $output->push($operators->pop());
+                    $output[] = array_pop($operators);
                 } elseif (!$expression->isLeftAssoc() && $expression->getPrecedence() < $end->getPrecedence()) {
-                    $output->push($operators->pop());
+                    $output[] = array_pop($operators);
                 } else {
                     break;
                 }
-            } while (($end = $operators->poke()) && $end->isOperator());
-            $operators->push($expression);
+            } while (($end = end($operators)) && $end->isOperator());
+            $operators[] = $expression;
         } else {
-            $operators->push($expression);
+            $operators[] = $expression;
         }
     }
     
-    protected function tokenize($string)
+    private function tokenize($string)
     {
         $match = preg_match('#^(\d+(\.\d+)?|\$\d+|\$\w+|\+|-|\(|\)|\*|/|%|\^|\s+)+$#', $string);
         
@@ -187,17 +187,13 @@ class Math
         $this->variables = $variables;
     }
     
-    private function substituteVariables(Stack $stack, array $variables)
+    private function substituteVariables(array &$stack, array $variables)
     {
-        $substitutedStack = new Stack();
-        while ($expression = $stack->shift()) {
+        foreach ($stack as &$expression) {
             if ($expression instanceof Variable) {
-                $substitutedStack->push(new Number($expression->render($variables)));
-            } else {
-                $substitutedStack->push($expression);
+                $expression = new Number($expression->render($variables));
             }
         }
-        return $substitutedStack;
     }
     
     private function assertVariablesAreNumbers(array $variables)

@@ -12,7 +12,7 @@ class Number extends Expression
         parent::__construct(+$value);
     }
     
-    public function operate(Stack $stack)
+    public function operate(array &$stack)
     {
         return $this->value;
     }

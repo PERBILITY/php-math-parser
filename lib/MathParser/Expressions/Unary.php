@@ -13,10 +13,10 @@ class Unary extends Operator
         return true;
     }
 
-    public function operate(Stack $stack)
+    public function operate(array &$stack)
     {
         //the operate here should always be returning a value alone
-        $next = $stack->pop()->operate($stack);
+        $next = array_pop($stack)->operate($stack);
         
         if($next === null){
             return null;

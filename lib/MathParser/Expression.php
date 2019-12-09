@@ -50,7 +50,7 @@ abstract class Expression
         throw new \RuntimeException('Undefined Value ' . $value);
     }
 
-    abstract public function operate(Stack $stack);
+    abstract public function operate(array &$stack);
 
     public function isOperator()
     {

@@ -8,10 +8,10 @@ class Modulo extends Operator
 {
     protected $precedence = 5;
 
-    public function operate(Stack $stack)
+    public function operate(array &$stack)
     {
-        $left = $stack->pop()->operate($stack);
-        $right = $stack->pop()->operate($stack);
+        $left = array_pop($stack)->operate($stack);
+        $right = array_pop($stack)->operate($stack);
     
         if($left === null || $right === null){
             return null;
