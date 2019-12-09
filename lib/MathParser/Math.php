@@ -153,13 +153,13 @@ class Math
     
     protected function tokenize($string)
     {
-        $match = preg_match('#^(\d+(\.\d+)?|\$\d+|\+|-|\(|\)|\*|/|%|\^|\s+)+$#', $string);
+        $match = preg_match('#^(\d+(\.\d+)?|\$\d+|\$\w+|\+|-|\(|\)|\*|/|%|\^|\s+)+$#', $string);
         
         // check to see obvious syntax mistakes (e.g. unallowed characters...)
         if (!$match) {
             throw new \RuntimeException('invalid syntax!');
         }
-        $parts = preg_split('((\d+(?:\.\d+)?|\$\d+|\+|-|\(|\)|\*|/|%|\^|\s+))', $string, null, PREG_SPLIT_NO_EMPTY |
+        $parts = preg_split('((\d+(?:\.\d+)?|\$\d+|\$\w+|\+|-|\(|\)|\*|/|%|\^|\s+))', $string, null, PREG_SPLIT_NO_EMPTY |
             PREG_SPLIT_DELIM_CAPTURE);
         $parts = array_filter(array_map('trim', $parts), function ($val) {
             return $val !== '';
