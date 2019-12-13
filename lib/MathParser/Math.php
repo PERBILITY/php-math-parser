@@ -82,7 +82,7 @@ class Math
         $this->variables[$name] = $value;
     }
     
-    public function run(array &$stack)
+    public function run(array $stack)
     {
         $this->substituteVariables($stack, $this->variables);
         

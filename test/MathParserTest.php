@@ -163,6 +163,17 @@ class MathParserTest extends TestCase
     }
     
     /**
+     * @dataProvider provideVariableData
+     */
+    public function testVariablesMultipleTimes($input, $expected)
+    {
+        $mathParser = new Math();
+        $mathParser->setVariables($input[1]);
+        $this->assertSame($expected, $mathParser->evaluate($input[0]));
+        $this->assertSame($expected, $mathParser->evaluate($input[0]));
+    }
+    
+    /**
      * @dataProvider provideInvalidVariableData
      */
     public function testInvalidVariable($input, $expected)
