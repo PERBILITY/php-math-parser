@@ -6,7 +6,7 @@ use MathParser\Expressions\Unary;
 
 class Math
 {
-    protected $variables = [];
+    private $variables = [];
     
     /**
      * @param $string
