@@ -14,6 +14,11 @@ class Variable extends Expression
         }
     }
     
+    public function getName()
+    {
+        return $this->value;
+    }
+    
     public function isVariable()
     {
         return true;

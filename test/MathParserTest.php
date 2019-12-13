@@ -103,8 +103,29 @@ class MathParserTest extends TestCase
             [['$0 + $2', [0, 41, 13]], 13],
             [['$a + $b', ['a' => 0, 'b' => 41, 13]], 41],
             [['$a + $b + $0', ['a' => 0, 'b' => 41, 0 => 13]], 54],
+            [['$a1 + $b2 + $0', ['a1' => 0, 'b2' => 41, 0 => 13]], 54],
             [['$0 + $2', [0, 41, 13]], 13],
             [['$0 + $2', [0, 41, 13]], 13],
+        ];
+        
+        return $data;
+    }
+    
+    /**
+     * @return mixed[][]
+     */
+    public static function provideVariableDataWithUsedVars()
+    {
+        $data = [
+            [['$0', [1]], ['0']],
+            [['$0 + $0', [1]], ['0']],
+            [['$0 + $1', [1, 41]], ['0', '1']],
+            [['$0 + $2', [0, 41, 13]], ['0', '2']],
+            [['$a + $b', ['a' => 0, 'b' => 41, 13]], ['a', 'b']],
+            [['$a + $b + $0', ['a' => 0, 'b' => 41, 0 => 13]], ['a', 'b', '0']],
+            [['$a1 + $b2 + $0', ['a1' => 0, 'b2' => 41, 0 => 13]], ['a1', 'b2', '0']],
+            [['$0 + $2', [0, 41, 13]], ['0', '2']],
+            [['10', []], []],
         ];
         
         return $data;
@@ -193,5 +214,16 @@ class MathParserTest extends TestCase
         $mathParser = new Math();
         $mathParser->registerVariable(0, $input[1][0]);
         $mathParser->evaluate($input[0]);
+    }
+    
+    /**
+     * @dataProvider provideVariableDataWithUsedVars
+     */
+    public function testDistinctVariables($input, $expected)
+    {
+        $mathParser = new Math();
+        $stack = $mathParser->parse($input[0]);
+        $vars = $mathParser->getDistinctVariables($stack);
+        $this->assertSame($expected, $vars);
     }
 }

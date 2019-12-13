@@ -96,6 +96,22 @@ class Math
         return $operator ? $operator->render() : $this->render($stack);
     }
     
+    public function getDistinctVariables(array $stack)
+    {
+        $variables = [];
+    
+        foreach ($stack as $expression) {
+            if ($expression instanceof Variable) {
+                $variableName = $expression->getName();
+                if (!in_array($variableName, $variables, true)) {
+                    $variables[] = $variableName;
+                }
+            }
+        }
+        
+        return $variables;
+    }
+    
     private function render(array &$stack)
     {
         $output = '';
