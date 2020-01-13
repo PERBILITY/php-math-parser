@@ -221,7 +221,8 @@ class Math
     private function assertVariableIsNumberOrNull($variable)
     {
         if (!is_int($variable) && !is_float($variable) && !($variable === null)) {
-            throw new \InvalidArgumentException('provided variable is not a number or null. found: ' . $variable);
+            throw new \InvalidArgumentException('provided variable is not a number or null. found: ' .
+                gettype($variable));
         }
     }
 }
