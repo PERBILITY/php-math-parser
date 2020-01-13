@@ -8,7 +8,7 @@ class Number extends Expression
 {
     public function __construct($value)
     {
-        parent::__construct(+$value);
+        parent::__construct($value);
     }
     
     public function operate(array &$stack)

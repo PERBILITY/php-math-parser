@@ -77,7 +77,7 @@ class Math
     
     public function registerVariable($name, $value)
     {
-        $this->assertVariableIsNumber($value);
+        $this->assertVariableIsNumberOrNull($value);
     
         $this->variables[$name] = $value;
     }
@@ -198,7 +198,7 @@ class Math
      */
     public function setVariables(array $variables)
     {
-        $this->assertVariablesAreNumbers($variables);
+        $this->assertVariablesAreNumbersOrNull($variables);
         $this->variables = $variables;
     }
     
@@ -211,17 +211,17 @@ class Math
         }
     }
     
-    private function assertVariablesAreNumbers(array $variables)
+    private function assertVariablesAreNumbersOrNull(array $variables)
     {
         foreach ($variables as $variable) {
-            $this->assertVariableIsNumber($variable);
+            $this->assertVariableIsNumberOrNull($variable);
         }
     }
     
-    private function assertVariableIsNumber($variable)
+    private function assertVariableIsNumberOrNull($variable)
     {
-        if (!is_int($variable) && !is_float($variable)) {
-            throw new \InvalidArgumentException('provided variable is not a number');
+        if (!is_int($variable) && !is_float($variable) && !($variable === null)) {
+            throw new \InvalidArgumentException('provided variable is not a number or null. found: ' . $variable);
         }
     }
 }
