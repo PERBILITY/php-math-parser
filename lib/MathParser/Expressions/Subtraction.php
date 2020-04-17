@@ -1,20 +1,26 @@
 <?php
 
+declare(strict_types=1);
+
 namespace MathParser\Expressions;
+
+use MathParser\Options\NullHandling;
 
 class Subtraction extends Operator
 {
-    protected $precedence = 4;
-
-    public function operate(array &$stack)
+    public function getPrecedence(): int
     {
-        $left = array_pop($stack)->operate($stack);
-        $right = array_pop($stack)->operate($stack);
+        return 4;
+    }
     
-        if ($left === null || $right === null) {
-            return null;
-        }
-        
-        return $right - $left;
+    public function operate(array &$stack, array $options)
+    {
+        return NullHandling::withNullHandling(
+            $stack,
+            $options,
+            static function ($left, $right) {
+                return $left - $right;
+            }
+        );
     }
 }

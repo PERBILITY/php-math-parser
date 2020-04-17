@@ -1,20 +1,25 @@
 <?php
 
+declare(strict_types=1);
+
 namespace MathParser\Expressions;
 
 class Unary extends Operator
 {
-    protected $precedence = 7;
-    
-    public function isUnary()
+    public function isUnary(): bool
     {
         return true;
     }
     
-    public function operate(array &$stack)
+    public function getPrecedence(): int
+    {
+        return 7;
+    }
+    
+    public function operate(array &$stack, array $options)
     {
         //the operate here should always be returning a value alone
-        $next = array_pop($stack)->operate($stack);
+        $next = array_pop($stack)->operate($stack, $options);
         
         if ($next === null) {
             return null;

@@ -1,6 +1,10 @@
 <?php
+
+declare(strict_types=1);
+
 namespace MathParser;
 
+use MathParser\Exceptions\InvalidSyntaxException;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -115,6 +119,179 @@ class MathParserTest extends TestCase
     /**
      * @return mixed[][]
      */
+    public static function provideVariableDataForStrictNullHandling()
+    {
+        // fallback = 42;
+        $data = [
+            [['$0', [null]], null],
+            
+            [['$0 + $0', [null]], null],
+            [['$0 + $1', [null, 41]], null],
+            [['$0 + $1', [41, null]], null],
+            [['$a1 + $b2 + $0', ['a1' => null, 'b2' => 41, 0 => 13]], null],
+            
+            [['$0 * $0', [null]], null],
+            [['$0 * $1', [null, 41]], null],
+            [['$0 * $1', [41, null]], null],
+            [['$a1 * $b2 * $0', ['a1' => null, 'b2' => 41, 0 => 13]], null],
+            
+            [['$0 / $0', [null]], null],
+            [['$0 / $1', [null, 41]], null],
+            [['$0 / $1', [41, null]], null],
+            [['$a1 / $b2 / $0', ['a1' => null, 'b2' => 41, 0 => 13]], null],
+            
+            [['$0 % $0', [null]], null],
+            [['$0 % $1', [null, 41]], null],
+            [['$0 % $1', [41, null]], null],
+            [['$a1 % $b2 % $0', ['a1' => null, 'b2' => 41, 0 => 13]], null],
+            
+            [['$0 - $0', [null]], null],
+            [['$0 - $1', [null, 41]], null],
+            [['$0 - $1', [41, null]], null],
+            [['$a1 - $b2 - $0', ['a1' => null, 'b2' => 41, 0 => 13]], null],
+            
+            [['$0 ^ $0', [null]], null],
+            [['$0 ^ $1', [null, 41]], null],
+            [['$0 ^ $1', [41, null]], null],
+            [['$a1 ^ $b2 ^ $0', ['a1' => null, 'b2' => 4, 0 => 3]], null],
+        ];
+        
+        return $data;
+    }
+    
+    
+    /**
+     * @return mixed[][]
+     */
+    public static function provideVariableDataForFallbackNullHandling()
+    {
+        // fallback = 42;
+        $data = [
+            [['$0', [null]], null],
+            
+            [['$0 + $0', [null]], 84],
+            [['$0 + $1', [null, 41]], 83],
+            [['$0 + $1', [41, null]], 83],
+            [['$a1 + $b2 + $0', ['a1' => null, 'b2' => 41, 0 => 13]], 42 + 54],
+            
+            [['$0 * $0', [null]], 42 * 42],
+            [['$0 * $1', [null, 41]], 42 * 41],
+            [['$0 * $1', [41, null]], 41 * 42],
+            [['$a1 * $b2 * $0', ['a1' => null, 'b2' => 41, 0 => 13]], 42 * 41 * 13],
+            
+            [['$0 / $0', [null]], 1],
+            [['$0 / $1', [null, 41]], 42 / 41],
+            [['$0 / $1', [41, null]], 41 / 42],
+            [['$a1 / $b2 / $0', ['a1' => null, 'b2' => 41, 0 => 13]], 42 / 41 / 13],
+            
+            [['$0 % $0', [null]], 0],
+            [['$0 % $1', [null, 41]], 1],
+            [['$0 % $1', [41, null]], 41],
+            [['$a1 % $b2 % $0', ['a1' => null, 'b2' => 41, 0 => 13]], 42 % 41 % 13],
+            
+            [['$0 - $0', [null]], 0],
+            [['$0 - $1', [null, 41]], 1],
+            [['$0 - $1', [41, null]], -1],
+            [['$a1 - $b2 - $0', ['a1' => null, 'b2' => 41, 0 => 13]], 42 - 41 - 13],
+            
+            [['$0 ^ $0', [null]], 42 ** 42],
+            [['$0 ^ $1', [null, 41]], 42 ** 41],
+            [['$0 ^ $1', [41, null]], 41 ** 42],
+            [['$a1 ^ $b2 ^ $0', ['a1' => null, 'b2' => 4, 0 => 3]], 42 ** 4 ** 3],
+        ];
+        
+        return $data;
+    }
+    
+    /**
+     * @return mixed[][]
+     */
+    public static function provideVariableDataForLooseNullHandling()
+    {
+        // fallback = 42;
+        $data = [
+            [['$0', [null]], null],
+            
+            [['$0 + $0', [null]], 0],
+            [['$0 + $1', [null, 41]], 41],
+            [['$0 + $1', [41, null]], 41],
+            [['$a1 + $b2 + $0', ['a1' => null, 'b2' => 41, 0 => 13]], 54],
+            
+            [['$0 * $0', [null]], 0],
+            [['$0 * $1', [null, 41]], 0],
+            [['$0 * $1', [41, null]], 0],
+            [['$a1 * $b2 * $0', ['a1' => null, 'b2' => 41, 0 => 13]], 0],
+            
+            [['$0 / $0', [null]], null],
+            [['$0 / $1', [null, 41]], 0],
+            [['$0 / $1', [41, null]], null],
+            [['$a1 / $b2 / $0', ['a1' => null, 'b2' => 41, 0 => 13]], 0],
+            
+            [['$0 % $0', [null]], null],
+            [['$0 % $1', [null, 41]], 0],
+            [['$0 % $1', [41, null]], null],
+            [['$a1 % $b2 % $0', ['a1' => null, 'b2' => 41, 0 => 13]], 0 % 41 % 13],
+            
+            [['$0 - $0', [null]], 0],
+            [['$0 - $1', [null, 41]], -41],
+            [['$0 - $1', [41, null]], 41],
+            [['$a1 - $b2 - $0', ['a1' => null, 'b2' => 41, 0 => 13]], -41 - 13],
+            
+            // 64 bit to the rescue !
+            [['$0 ^ $0', [null]], 1],
+            [['$0 ^ $1', [null, 41]], 0 ** 41],
+            [['$0 ^ $1', [41, null]], 41 ** 0],
+            [['$a1 ^ $b2 ^ $0', ['a1' => null, 'b2' => 4, 0 => 3]], 0 ** 4 ** 3],
+        ];
+        
+        return $data;
+    }
+    
+    /**
+     * @return mixed[][]
+     */
+    public static function provideVariableDataForSkipHandling()
+    {
+        $data = [
+            [['$0', [null]], null],
+            
+            [['$0 + $0', [null]], null],
+            [['$0 + $1', [null, 41]], 41],
+            [['$0 * $1', [41, null]], 41],
+            [['$a1 + $b2 + $0', ['a1' => null, 'b2' => 41, 0 => 13]], 54],
+            
+            [['$0 * $0', [null]], null],
+            [['$0 * $1', [null, 41]], 41],
+            [['$0 * $1', [41, null]], 41],
+            [['$a1 * $b2 * $0', ['a1' => null, 'b2' => 41, 0 => 13]], 41 * 13],
+            
+            [['$0 / $0', [null]], null],
+            [['$0 / $1', [null, 41]], 41],
+            [['$0 / $1', [41, null]], 41],
+            [['$a1 / $b2 / $0', ['a1' => null, 'b2' => 41, 0 => 13]], 41 / 13],
+            
+            [['$0 % $0', [null]], null],
+            [['$0 % $1', [null, 41]], 41],
+            [['$0 % $1', [41, null]], 41],
+            [['$a1 % $b2 % $0', ['a1' => null, 'b2' => 41, 0 => 13]], 41 % 13],
+            
+            [['$0 - $0', [null]], null],
+            [['$0 - $1', [null, 41]], 41],
+            [['$0 - $1', [41, null]], 41],
+            [['$a1 - $b2 - $0', ['a1' => null, 'b2' => 41, 0 => 13]], 41 - 13],
+            
+            [['$0 ^ $0', [null]], null],
+            [['$0 ^ $1', [null, 41]], 41],
+            [['$0 ^ $1', [41, null]], 41],
+            [['$a1 ^ $b2 ^ $0', ['a1' => null, 'b2' => 4, 0 => 3]], 4 ** 3],
+        ];
+        
+        return $data;
+    }
+    
+    /**
+     * @return mixed[][]
+     */
     public static function provideVariableDataWithUsedVars()
     {
         $data = [
@@ -150,8 +327,7 @@ class MathParserTest extends TestCase
      */
     public function testValid($input, $expected)
     {
-        $mathParser = new Math();
-        $this->assertSame($expected, $mathParser->evaluate($input));
+        $this->assertSame($expected, Math::evaluate($input));
     }
     
     /**
@@ -159,9 +335,8 @@ class MathParserTest extends TestCase
      */
     public function testInvalidSyntax($input, $expected)
     {
-        $this->expectException(\RuntimeException::class);
-        $mathParser = new Math();
-        $mathParser->evaluate($input);
+        $this->expectException(InvalidSyntaxException::class);
+        Math::evaluate($input);
     }
     
     /**
@@ -169,9 +344,8 @@ class MathParserTest extends TestCase
      */
     public function testInvalidSyntaxType($input, $expected)
     {
-        $this->expectException(\RuntimeException::class);
-        $mathParser = new Math();
-        $mathParser->evaluate($input);
+        $this->expectException(\TypeError::class);
+        Math::evaluate($input);
     }
     
     /**
@@ -179,9 +353,7 @@ class MathParserTest extends TestCase
      */
     public function testVariables($input, $expected)
     {
-        $mathParser = new Math();
-        $mathParser->setVariables($input[1]);
-        $this->assertSame($expected, $mathParser->evaluate($input[0]));
+        $this->assertSame($expected, Math::evaluate($input[0], $input[1]));
     }
     
     /**
@@ -189,10 +361,8 @@ class MathParserTest extends TestCase
      */
     public function testVariablesMultipleTimes($input, $expected)
     {
-        $mathParser = new Math();
-        $mathParser->setVariables($input[1]);
-        $this->assertSame($expected, $mathParser->evaluate($input[0]));
-        $this->assertSame($expected, $mathParser->evaluate($input[0]));
+        $this->assertSame($expected, Math::evaluate($input[0], $input[1]));
+        $this->assertSame($expected, Math::evaluate($input[0], $input[1]));
     }
     
     /**
@@ -201,9 +371,7 @@ class MathParserTest extends TestCase
     public function testInvalidVariable($input, $expected)
     {
         $this->expectException(\InvalidArgumentException::class);
-        $mathParser = new Math();
-        $mathParser->setVariables($input[1]);
-        $mathParser->evaluate($input[0]);
+        Math::evaluate($input[0], $input[1]);
     }
     
     /**
@@ -212,9 +380,7 @@ class MathParserTest extends TestCase
     public function testInvalidVariableWithRegister($input, $expected)
     {
         $this->expectException(\InvalidArgumentException::class);
-        $mathParser = new Math();
-        $mathParser->registerVariable(0, $input[1][0]);
-        $mathParser->evaluate($input[0]);
+        Math::evaluate($input[0], [0 => $input[1][0]]);
     }
     
     /**
@@ -222,9 +388,44 @@ class MathParserTest extends TestCase
      */
     public function testDistinctVariables($input, $expected)
     {
-        $mathParser = new Math();
-        $stack = $mathParser->parse($input[0]);
-        $vars = $mathParser->getDistinctVariables($stack);
+        $stack = Math::parse($input[0]);
+        $vars = Math::getDistinctVariables($stack);
         $this->assertSame($expected, $vars);
+    }
+    
+    /**
+     * @dataProvider provideVariableDataForStrictNullHandling
+     */
+    public function testStrictNullHandling($input, $expected)
+    {
+        $value = Math::evaluate($input[0], $input[1]);
+        $this->assertSame($expected, $value);
+    }
+    
+    /**
+     * @dataProvider provideVariableDataForLooseNullHandling
+     */
+    public function testLooseNullHandling($input, $expected)
+    {
+        $value = Math::evaluate($input[0], $input[1], ['null_handling' => 'loose']);
+        $this->assertSame($expected, $value);
+    }
+    
+    /**
+     * @dataProvider provideVariableDataForSkipHandling
+     */
+    public function testSkipNullHandling($input, $expected)
+    {
+        $value = Math::evaluate($input[0], $input[1], ['null_handling' => 'skip']);
+        $this->assertSame($expected, $value);
+    }
+    
+    /**
+     * @dataProvider provideVariableDataForFallbackNullHandling
+     */
+    public function testFallbackNullHandling($input, $expected)
+    {
+        $value = Math::evaluate($input[0], $input[1], ['null_handling' => 'fallback', 'fallback' => 42]);
+        $this->assertSame($expected, $value);
     }
 }

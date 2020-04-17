@@ -1,25 +1,23 @@
 <?php
 
+declare(strict_types=1);
+
 namespace MathParser\Expressions;
 
 use MathParser\Expression;
 
 abstract class Operator extends Expression
 {
-    protected $precedence = 0;
     protected $leftAssoc = true;
 
-    public function getPrecedence()
-    {
-        return $this->precedence;
-    }
+    abstract public function getPrecedence(): int;
 
-    public function isLeftAssoc()
+    public function isLeftAssoc(): bool
     {
         return $this->leftAssoc;
     }
 
-    public function isOperator()
+    public function isOperator(): bool
     {
         return true;
     }

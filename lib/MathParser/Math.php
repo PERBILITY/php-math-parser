@@ -1,34 +1,35 @@
 <?php
+
+declare(strict_types=1);
+
 namespace MathParser;
 
+use MathParser\Exceptions\InvalidSyntaxException;
 use MathParser\Expressions\Number;
 use MathParser\Expressions\Unary;
 
 class Math
 {
-    private $variables = [];
     
     /**
-     * @param $string
+     * @param string $string
+     * @param int[]|float[] $variables
      * @return string
      */
-    public function evaluate($string)
+    public static function evaluate(string $string, array $variables = [], array $options = [])
     {
-        if (!is_string($string)) {
-            throw new \RuntimeException('not a string provided as formula');
-        }
-        $stack = $this->parse($string);
-        
-        return $this->run($stack);
+        $stack = self::parse($string);
+        self::substituteVariables($stack, $variables);
+        return self::run($stack, $options);
     }
     
     /**
-     * @param $string
+     * @param string $string
      * @return Expression[] $output
      */
-    public function parse($string)
+    public static function parse(string $string): array
     {
-        $tokens = $this->tokenize($string);
+        $tokens = self::tokenize($string);
         $output = [];
         $operators = [];
         
@@ -38,20 +39,18 @@ class Math
             $expression = Expression::factory($token);
             if ($expression->isOperator()) {
                 if ($expectOperator) {
-                    $this->parseOperator($expression, $output, $operators);
+                    self::parseOperator($expression, $output, $operators);
                     $expectOperator = false;
+                } elseif (!$expectOperator && $token === '-') {
+                    self::parseOperator(new Unary('u'), $output, $operators);
                 } else {
-                    if (!$expectOperator && $token == '-') {
-                        $this->parseOperator(new Unary('u'), $output, $operators);
-                    } else {
-                        throw new \RuntimeException('expected number or variable but found: ' . get_class($expression));
-                    }
+                    throw new InvalidSyntaxException('expected number or variable but found: ' . get_class($expression));
                 }
             } elseif ($expression->isParenthesis()) {
-                $this->parseParenthesis($expression, $output, $operators);
+                self::parseParenthesis($expression, $output, $operators);
                 if ($expression->isOpen()) {
                     if ($expectOperator) {
-                        throw new \RuntimeException('expected operator but found: ' . get_class($expression));
+                        throw new InvalidSyntaxException('expected operator but found: ' . get_class($expression));
                     }
                     $expectOperator = false;
                 } else {
@@ -59,7 +58,7 @@ class Math
                 }
             } else {
                 if ($expectOperator) {
-                    throw new \RuntimeException('expected operator but found: ' . get_class($expression));
+                    throw new InvalidSyntaxException('expected operator but found: ' . get_class($expression));
                 }
                 $output[] = $expression;
                 $expectOperator = true;
@@ -67,7 +66,7 @@ class Math
         }
         while (($op = array_pop($operators))) {
             if ($op->isParenthesis()) {
-                throw new \RuntimeException('Mismatched Parenthesis');
+                throw new InvalidSyntaxException('Mismatched Parenthesis');
             }
             $output[] = $op;
         }
@@ -75,28 +74,33 @@ class Math
         return $output;
     }
     
-    public function registerVariable($name, $value)
+    /**
+     * @param Expression[] $stack
+     * @param array $options
+     * @return string|null
+     */
+    public static function run(array $stack, array $options = [])
     {
-        $this->assertVariableIsNumberOrNull($value);
-    
-        $this->variables[$name] = $value;
-    }
-    
-    public function run(array $stack)
-    {
-        $this->substituteVariables($stack, $this->variables);
+        $defaultOptions = [
+            'null_handling' => 'strict',
+            'fallback' => 0
+        ];
+        $options = $options + $defaultOptions;
+        
+        assert(in_array($options['null_handling'], ['strict', 'skip', 'loose', 'fallback']));
+        assert(is_int($options['fallback']) || is_float($options['fallback']));
         
         while (($operator = array_pop($stack)) && $operator->isOperator()) {
-            $value = $operator->operate($stack);
-            if (!is_null($value)) {
+            $value = $operator->operate($stack, $options);
+            if ($value !== null) {
                 $stack[] = Expression::factory($value);
             }
         }
         
-        return $operator ? $operator->render() : $this->render($stack);
+        return $operator ? $operator->render() : self::render($stack);
     }
     
-    public function getDistinctVariables(array $stack)
+    public static function getDistinctVariables(array $stack)
     {
         $variables = [];
     
@@ -112,7 +116,7 @@ class Math
         return $variables;
     }
     
-    private function render(array &$stack)
+    private static function render(array &$stack)
     {
         $output = '';
         while (($el = array_pop($stack))) {
@@ -125,7 +129,7 @@ class Math
         return null;
     }
     
-    private function parseParenthesis(Expression $expression, array &$output, array &$operators)
+    private static function parseParenthesis(Expression $expression, array &$output, array &$operators)
     {
         if ($expression->isOpen()) {
             $operators[] = $expression;
@@ -145,7 +149,7 @@ class Math
         }
     }
     
-    private function parseOperator(Expression $expression, array &$output, array &$operators)
+    private static function parseOperator(Expression $expression, array &$output, array &$operators)
     {
         $end = end($operators);
         if (!$end) {
@@ -166,44 +170,26 @@ class Math
         }
     }
     
-    private function tokenize($string)
+    private static function tokenize(string $string)
     {
         $match = preg_match('#^(\d+(\.\d+)?|\$\d+|\$\w+|\+|-|\(|\)|\*|/|%|\^|\s+)+$#', $string);
         
         // check to see obvious syntax mistakes (e.g. unallowed characters...)
         if (!$match) {
-            throw new \RuntimeException('invalid syntax!');
+            throw new InvalidSyntaxException('invalid syntax!');
         }
-        $parts = preg_split('((\d+(?:\.\d+)?|\$\d+|\$\w+|\+|-|\(|\)|\*|/|%|\^|\s+))', $string, null, PREG_SPLIT_NO_EMPTY |
+        $parts = preg_split('((\d+(?:\.\d+)?|\$\d+|\$\w+|\+|-|\(|\)|\*|/|%|\^|\s+))', $string, -1, PREG_SPLIT_NO_EMPTY |
             PREG_SPLIT_DELIM_CAPTURE);
-        $parts = array_filter(array_map('trim', $parts), function ($val) {
+        $parts = array_filter(array_map('trim', $parts), static function ($val) {
             return $val !== '';
         });
         
         return $parts;
     }
     
-    /**
-     * removes any variables
-     */
-    public function clearVariables()
+    public static function substituteVariables(array &$stack, array $variables): void
     {
-        $this->variables = [];
-    }
-    
-    /**
-     * expects a one dimensional array of key-value pairs
-     *
-     * @param array $variables
-     */
-    public function setVariables(array $variables)
-    {
-        $this->assertVariablesAreNumbersOrNull($variables);
-        $this->variables = $variables;
-    }
-    
-    private function substituteVariables(array &$stack, array $variables)
-    {
+        self::assertVariablesAreNumbersOrNull($variables);
         foreach ($stack as &$expression) {
             if ($expression instanceof Variable) {
                 $expression = new Number($expression->render($variables));
@@ -211,14 +197,14 @@ class Math
         }
     }
     
-    private function assertVariablesAreNumbersOrNull(array $variables)
+    private static function assertVariablesAreNumbersOrNull(array $variables)
     {
         foreach ($variables as $variable) {
-            $this->assertVariableIsNumberOrNull($variable);
+            self::assertVariableIsNumberOrNull($variable);
         }
     }
     
-    private function assertVariableIsNumberOrNull($variable)
+    private static function assertVariableIsNumberOrNull($variable)
     {
         if (!is_int($variable) && !is_float($variable) && !($variable === null)) {
             throw new \InvalidArgumentException('provided variable is not a number or null. found: ' .

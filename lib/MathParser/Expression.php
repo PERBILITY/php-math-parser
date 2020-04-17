@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace MathParser;
 
 use MathParser\Expressions\Addition;
@@ -21,58 +23,58 @@ abstract class Expression
         $this->value = $value;
     }
 
-    public static function factory($value)
+    public static function factory($value): Expression
     {
         if (is_object($value) && $value instanceof self) {
             return $value;
         } elseif (is_numeric($value)) {
             // +0 => to number conversion (int or float)
             return new Number($value + 0);
-        } elseif ($value == 'u') {
+        } elseif ($value === 'u') {
             return new Unary($value);
-        } elseif ($value == '+') {
+        } elseif ($value === '+') {
             return new Addition($value);
-        } elseif ($value == '-') {
+        } elseif ($value === '-') {
             return new Subtraction($value);
-        } elseif ($value == '*') {
+        } elseif ($value === '*') {
             return new Multiplication($value);
-        } elseif ($value == '/') {
+        } elseif ($value === '/') {
             return new Division($value);
-        } elseif (in_array($value, array('(', ')'))) {
+        } elseif (in_array($value, ['(', ')'], true)) {
             return new Parenthesis($value);
-        } elseif ($value == '^') {
+        } elseif ($value === '^') {
             return new Power($value);
-        } elseif ($value == '%') {
+        } elseif ($value === '%') {
             return new Modulo($value);
-        } elseif (strlen($value) >= 2 && $value[0] == '$') {
+        } elseif (strlen($value) >= 2 && $value[0] === '$') {
             return new Variable(substr($value, 1));
         }
         throw new \RuntimeException('Undefined Value ' . $value);
     }
 
-    abstract public function operate(array &$stack);
+    abstract public function operate(array &$stack, array $options);
 
-    public function isOperator()
+    public function isOperator(): bool
     {
         return false;
     }
 
-    public function isUnary()
+    public function isUnary(): bool
     {
         return false;
     }
 
-    public function isParenthesis()
+    public function isParenthesis(): bool
     {
         return false;
     }
 
-    public function isNoOp()
+    public function isNoOp(): bool
     {
         return false;
     }
     
-    public function isVariable()
+    public function isVariable(): bool
     {
         return false;
     }

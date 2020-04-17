@@ -1,24 +1,30 @@
 <?php
 
+declare(strict_types=1);
+
 namespace MathParser\Expressions;
+
+use MathParser\Options\NullHandling;
 
 class Division extends Operator
 {
-    protected $precedence = 5;
-    
-    public function operate(array &$stack)
+    public function getPrecedence(): int
     {
-        $left = array_pop($stack)->operate($stack);
-        $right = array_pop($stack)->operate($stack);
-        
-        if ($left === null || $right === null) {
-            return null;
-        }
-        
-        if ($left === 0) {
-            return null;
-        }
-        
-        return $right / $left;
+        return 5;
+    }
+    
+    public function operate(array &$stack, $options)
+    {
+        return NullHandling::withNullHandling(
+            $stack,
+            $options,
+            static function ($left, $right) {
+                if ($right === 0) {
+                    return null;
+                }
+            
+                return $left / $right;
+            }
+        );
     }
 }

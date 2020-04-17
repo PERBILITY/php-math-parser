@@ -1,19 +1,32 @@
 <?php
 
+declare(strict_types=1);
+
 namespace MathParser\Expressions;
+
+use MathParser\Options\NullHandling;
 
 class Power extends Operator
 {
-    protected $precedence = 6;
     
-    public function operate(array &$stack)
+    public function getPrecedence(): int
     {
-        $right = array_pop($stack)->operate($stack);
-        $left = array_pop($stack)->operate($stack);
-        
-        if ($left === null || $right === null) {
-            return null;
-        }
-        return pow($left, $right);
+        return 6;
+    }
+    
+    public function isLeftAssoc(): bool
+    {
+        return false;
+    }
+    
+    public function operate(array &$stack, array $options)
+    {
+        return NullHandling::withNullHandling(
+            $stack,
+            $options,
+            static function ($left, $right) {
+                return $left ** $right;
+            }
+        );
     }
 }

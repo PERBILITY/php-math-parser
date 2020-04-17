@@ -1,34 +1,35 @@
 <?php
 
+declare(strict_types=1);
+
 namespace MathParser\Expressions;
 
 use MathParser\Expression;
 
 class Parenthesis extends Expression
 {
-    protected $precedence = 6;
 
-    public function operate(array &$stack)
+    public function operate(array &$stack, array $options = [])
     {
     }
 
-    public function getPrecedence()
+    public function getPrecedence(): int
     {
-        return $this->precedence;
+        return 6;
     }
 
-    public function isNoOp()
+    public function isNoOp(): bool
     {
         return true;
     }
 
-    public function isParenthesis()
+    public function isParenthesis(): bool
     {
         return true;
     }
 
-    public function isOpen()
+    public function isOpen(): bool
     {
-        return $this->value == '(';
+        return $this->value === '(';
     }
 }
