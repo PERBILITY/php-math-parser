@@ -19,7 +19,8 @@ class Modulo extends Operator
             $stack,
             $options,
             static function ($left, $right) {
-                if ($right === 0) {
+                // loose equality to catch 0, 0.0,... or any falsy value
+                if ($right == 0) {
                     return null;
                 } else {
                     return $left % $right;

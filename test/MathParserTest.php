@@ -34,17 +34,17 @@ class MathParserTest extends TestCase
             ['10 % 2', 0],
             ['10 % -3', 10 % -3],
             ['10 % 3', 10 % 3],
-            
+
             ['10 % 0', null],
             ['1/0', null],
             ['1/0 + 100', null],
-            
+
             ['1^0', 1],
             ['2^8', 256],
             ['2^-8', 1 / 256],
             ['0^0', 1],
             ['2^8 + -56 + (4*60+45) /15 % 177 - 2^7 - 49', 42],
-            
+
             // original tests
             ['10 / 5', 10 / 5],
             ['(2 + 3) * 4', (2 + 3) * 4],
@@ -59,7 +59,7 @@ class MathParserTest extends TestCase
             ['-7.3 * (-3.2+8) - 6 - -45.5', -7.3 * (-3.2 + 8) - 6 - -45.5]
         ];
     }
-    
+
     /**
      * @return mixed[][]
      */
@@ -73,15 +73,15 @@ class MathParserTest extends TestCase
             ['1/((0', null],
             ['1e5+1e5', null],
             ['1f5+1f5', null],
-            
+
             ['mathe ist doof', null],
             ['.1', null],
             ['10(100)', null],
         ];
-        
+
         return $data;
     }
-    
+
     /**
      * @return mixed[][]
      */
@@ -91,10 +91,10 @@ class MathParserTest extends TestCase
             [0, null],
             [[], null],
         ];
-        
+
         return $data;
     }
-    
+
     /**
      * @return mixed[][]
      */
@@ -112,10 +112,10 @@ class MathParserTest extends TestCase
             [['$0 + $2', [0, 41, 13]], 13],
             [['$0 + $2', [null, 41, 13]], null],
         ];
-        
+
         return $data;
     }
-    
+
     /**
      * @return mixed[][]
      */
@@ -124,42 +124,46 @@ class MathParserTest extends TestCase
         // fallback = 42;
         $data = [
             [['$0', [null]], null],
-            
+
             [['$0 + $0', [null]], null],
             [['$0 + $1', [null, 41]], null],
             [['$0 + $1', [41, null]], null],
             [['$a1 + $b2 + $0', ['a1' => null, 'b2' => 41, 0 => 13]], null],
-            
+
             [['$0 * $0', [null]], null],
             [['$0 * $1', [null, 41]], null],
             [['$0 * $1', [41, null]], null],
             [['$a1 * $b2 * $0', ['a1' => null, 'b2' => 41, 0 => 13]], null],
-            
+
             [['$0 / $0', [null]], null],
             [['$0 / $1', [null, 41]], null],
-            [['$0 / $1', [41, null]], null],
+            [['$0 / $1', [41, 0]], null],
+            [['$0 / $1', [41, 0.0]], null],
+
             [['$a1 / $b2 / $0', ['a1' => null, 'b2' => 41, 0 => 13]], null],
-            
+
             [['$0 % $0', [null]], null],
             [['$0 % $1', [null, 41]], null],
             [['$0 % $1', [41, null]], null],
+            [['$0 % $1', [41, 0]], null],
+            [['$0 % $1', [41, 0.0]], null],
             [['$a1 % $b2 % $0', ['a1' => null, 'b2' => 41, 0 => 13]], null],
-            
+
             [['$0 - $0', [null]], null],
             [['$0 - $1', [null, 41]], null],
             [['$0 - $1', [41, null]], null],
             [['$a1 - $b2 - $0', ['a1' => null, 'b2' => 41, 0 => 13]], null],
-            
+
             [['$0 ^ $0', [null]], null],
             [['$0 ^ $1', [null, 41]], null],
             [['$0 ^ $1', [41, null]], null],
             [['$a1 ^ $b2 ^ $0', ['a1' => null, 'b2' => 4, 0 => 3]], null],
         ];
-        
+
         return $data;
     }
-    
-    
+
+
     /**
      * @return mixed[][]
      */
@@ -168,41 +172,41 @@ class MathParserTest extends TestCase
         // fallback = 42;
         $data = [
             [['$0', [null]], null],
-            
+
             [['$0 + $0', [null]], 84],
             [['$0 + $1', [null, 41]], 83],
             [['$0 + $1', [41, null]], 83],
             [['$a1 + $b2 + $0', ['a1' => null, 'b2' => 41, 0 => 13]], 42 + 54],
-            
+
             [['$0 * $0', [null]], 42 * 42],
             [['$0 * $1', [null, 41]], 42 * 41],
             [['$0 * $1', [41, null]], 41 * 42],
             [['$a1 * $b2 * $0', ['a1' => null, 'b2' => 41, 0 => 13]], 42 * 41 * 13],
-            
+
             [['$0 / $0', [null]], 1],
             [['$0 / $1', [null, 41]], 42 / 41],
             [['$0 / $1', [41, null]], 41 / 42],
             [['$a1 / $b2 / $0', ['a1' => null, 'b2' => 41, 0 => 13]], 42 / 41 / 13],
-            
+
             [['$0 % $0', [null]], 0],
             [['$0 % $1', [null, 41]], 1],
             [['$0 % $1', [41, null]], 41],
             [['$a1 % $b2 % $0', ['a1' => null, 'b2' => 41, 0 => 13]], 42 % 41 % 13],
-            
+
             [['$0 - $0', [null]], 0],
             [['$0 - $1', [null, 41]], 1],
             [['$0 - $1', [41, null]], -1],
             [['$a1 - $b2 - $0', ['a1' => null, 'b2' => 41, 0 => 13]], 42 - 41 - 13],
-            
+
             [['$0 ^ $0', [null]], 42 ** 42],
             [['$0 ^ $1', [null, 41]], 42 ** 41],
             [['$0 ^ $1', [41, null]], 41 ** 42],
             [['$a1 ^ $b2 ^ $0', ['a1' => null, 'b2' => 4, 0 => 3]], 42 ** 4 ** 3],
         ];
-        
+
         return $data;
     }
-    
+
     /**
      * @return mixed[][]
      */
@@ -211,42 +215,42 @@ class MathParserTest extends TestCase
         // fallback = 42;
         $data = [
             [['$0', [null]], null],
-            
+
             [['$0 + $0', [null]], 0],
             [['$0 + $1', [null, 41]], 41],
             [['$0 + $1', [41, null]], 41],
             [['$a1 + $b2 + $0', ['a1' => null, 'b2' => 41, 0 => 13]], 54],
-            
+
             [['$0 * $0', [null]], 0],
             [['$0 * $1', [null, 41]], 0],
             [['$0 * $1', [41, null]], 0],
             [['$a1 * $b2 * $0', ['a1' => null, 'b2' => 41, 0 => 13]], 0],
-            
+
             [['$0 / $0', [null]], null],
             [['$0 / $1', [null, 41]], 0],
             [['$0 / $1', [41, null]], null],
             [['$a1 / $b2 / $0', ['a1' => null, 'b2' => 41, 0 => 13]], 0],
-            
+
             [['$0 % $0', [null]], null],
             [['$0 % $1', [null, 41]], 0],
             [['$0 % $1', [41, null]], null],
             [['$a1 % $b2 % $0', ['a1' => null, 'b2' => 41, 0 => 13]], 0 % 41 % 13],
-            
+
             [['$0 - $0', [null]], 0],
             [['$0 - $1', [null, 41]], -41],
             [['$0 - $1', [41, null]], 41],
             [['$a1 - $b2 - $0', ['a1' => null, 'b2' => 41, 0 => 13]], -41 - 13],
-            
+
             // 64 bit to the rescue !
             [['$0 ^ $0', [null]], 1],
             [['$0 ^ $1', [null, 41]], 0 ** 41],
             [['$0 ^ $1', [41, null]], 41 ** 0],
             [['$a1 ^ $b2 ^ $0', ['a1' => null, 'b2' => 4, 0 => 3]], 0 ** 4 ** 3],
         ];
-        
+
         return $data;
     }
-    
+
     /**
      * @return mixed[][]
      */
@@ -254,41 +258,41 @@ class MathParserTest extends TestCase
     {
         $data = [
             [['$0', [null]], null],
-            
+
             [['$0 + $0', [null]], null],
             [['$0 + $1', [null, 41]], 41],
             [['$0 * $1', [41, null]], 41],
             [['$a1 + $b2 + $0', ['a1' => null, 'b2' => 41, 0 => 13]], 54],
-            
+
             [['$0 * $0', [null]], null],
             [['$0 * $1', [null, 41]], 41],
             [['$0 * $1', [41, null]], 41],
             [['$a1 * $b2 * $0', ['a1' => null, 'b2' => 41, 0 => 13]], 41 * 13],
-            
+
             [['$0 / $0', [null]], null],
             [['$0 / $1', [null, 41]], 41],
             [['$0 / $1', [41, null]], 41],
             [['$a1 / $b2 / $0', ['a1' => null, 'b2' => 41, 0 => 13]], 41 / 13],
-            
+
             [['$0 % $0', [null]], null],
             [['$0 % $1', [null, 41]], 41],
             [['$0 % $1', [41, null]], 41],
             [['$a1 % $b2 % $0', ['a1' => null, 'b2' => 41, 0 => 13]], 41 % 13],
-            
+
             [['$0 - $0', [null]], null],
             [['$0 - $1', [null, 41]], 41],
             [['$0 - $1', [41, null]], 41],
             [['$a1 - $b2 - $0', ['a1' => null, 'b2' => 41, 0 => 13]], 41 - 13],
-            
+
             [['$0 ^ $0', [null]], null],
             [['$0 ^ $1', [null, 41]], 41],
             [['$0 ^ $1', [41, null]], 41],
             [['$a1 ^ $b2 ^ $0', ['a1' => null, 'b2' => 4, 0 => 3]], 4 ** 3],
         ];
-        
+
         return $data;
     }
-    
+
     /**
      * @return mixed[][]
      */
@@ -305,10 +309,10 @@ class MathParserTest extends TestCase
             [['$0 + $2', [0, 41, 13]], ['0', '2']],
             [['10', []], []],
         ];
-        
+
         return $data;
     }
-    
+
     /**
      * @return mixed[][]
      */
@@ -318,10 +322,10 @@ class MathParserTest extends TestCase
             [['$0', ['1']], 1],
             [['$0', ['test']], null],
         ];
-        
+
         return $data;
     }
-    
+
     /**
      * @dataProvider provideValidData
      */
@@ -329,7 +333,7 @@ class MathParserTest extends TestCase
     {
         $this->assertSame($expected, Math::evaluate($input));
     }
-    
+
     /**
      * @dataProvider provideInvalidSyntaxData
      */
@@ -338,7 +342,7 @@ class MathParserTest extends TestCase
         $this->expectException(InvalidSyntaxException::class);
         Math::evaluate($input);
     }
-    
+
     /**
      * @dataProvider provideInvalidSyntaxType
      */
@@ -347,7 +351,7 @@ class MathParserTest extends TestCase
         $this->expectException(\TypeError::class);
         Math::evaluate($input);
     }
-    
+
     /**
      * @dataProvider provideVariableData
      */
@@ -355,7 +359,7 @@ class MathParserTest extends TestCase
     {
         $this->assertSame($expected, Math::evaluate($input[0], $input[1]));
     }
-    
+
     /**
      * @dataProvider provideVariableData
      */
@@ -364,7 +368,7 @@ class MathParserTest extends TestCase
         $this->assertSame($expected, Math::evaluate($input[0], $input[1]));
         $this->assertSame($expected, Math::evaluate($input[0], $input[1]));
     }
-    
+
     /**
      * @dataProvider provideInvalidVariableData
      */
@@ -373,7 +377,7 @@ class MathParserTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
         Math::evaluate($input[0], $input[1]);
     }
-    
+
     /**
      * @dataProvider provideInvalidVariableData
      */
@@ -382,7 +386,7 @@ class MathParserTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
         Math::evaluate($input[0], [0 => $input[1][0]]);
     }
-    
+
     /**
      * @dataProvider provideVariableDataWithUsedVars
      */
@@ -392,7 +396,7 @@ class MathParserTest extends TestCase
         $vars = Math::getDistinctVariables($stack);
         $this->assertSame($expected, $vars);
     }
-    
+
     /**
      * @dataProvider provideVariableDataForStrictNullHandling
      */
@@ -401,7 +405,7 @@ class MathParserTest extends TestCase
         $value = Math::evaluate($input[0], $input[1]);
         $this->assertSame($expected, $value);
     }
-    
+
     /**
      * @dataProvider provideVariableDataForLooseNullHandling
      */
@@ -410,7 +414,7 @@ class MathParserTest extends TestCase
         $value = Math::evaluate($input[0], $input[1], ['null_handling' => 'loose']);
         $this->assertSame($expected, $value);
     }
-    
+
     /**
      * @dataProvider provideVariableDataForSkipHandling
      */
@@ -419,7 +423,7 @@ class MathParserTest extends TestCase
         $value = Math::evaluate($input[0], $input[1], ['null_handling' => 'skip']);
         $this->assertSame($expected, $value);
     }
-    
+
     /**
      * @dataProvider provideVariableDataForFallbackNullHandling
      */
